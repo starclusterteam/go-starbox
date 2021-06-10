@@ -24,3 +24,5 @@ jobs:
         uses: actions/checkout@v2
       - name: Test
         run: go test ./...
+        env:
+          STARBOX_ENV: test
