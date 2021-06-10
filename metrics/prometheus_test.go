@@ -35,9 +35,9 @@ func TestPrometheusServerCustomPortAndPath(t *testing.T) {
 
 func testPrometheusServer(t *testing.T, counterValue float64, port int, path string) {
 	counter := prometheus.NewCounter(prometheus.CounterOpts{
-		Namespace: "stdlib_prometheus",
+		Namespace: "starbox_prometheus",
 		Name:      "test_counter",
-		Help:      "Test counter for the stdlib Prometheus webserver",
+		Help:      "Test counter for the starbox Prometheus webserver",
 	})
 
 	prometheus.MustRegister(counter)
@@ -52,8 +52,8 @@ func testPrometheusServer(t *testing.T, counterValue float64, port int, path str
 	metricFamilies, err := parser.TextToMetricFamilies(resp.Body)
 	require.NoError(t, err)
 
-	require.Contains(t, metricFamilies, "stdlib_prometheus_test_counter")
-	require.Len(t, metricFamilies["stdlib_prometheus_test_counter"].Metric, 1)
-	require.NotNil(t, metricFamilies["stdlib_prometheus_test_counter"].Metric[0].GetCounter())
-	require.Equal(t, counterValue, metricFamilies["stdlib_prometheus_test_counter"].Metric[0].GetCounter().GetValue())
+	require.Contains(t, metricFamilies, "starbox_prometheus_test_counter")
+	require.Len(t, metricFamilies["starbox_prometheus_test_counter"].Metric, 1)
+	require.NotNil(t, metricFamilies["starbox_prometheus_test_counter"].Metric[0].GetCounter())
+	require.Equal(t, counterValue, metricFamilies["starbox_prometheus_test_counter"].Metric[0].GetCounter().GetValue())
 }

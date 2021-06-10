@@ -8,7 +8,7 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/starclusterteam/go-starbox/config"
-	"github.com/starclusterteam/go-starbox/const/envvar"
+	"github.com/starclusterteam/go-starbox/constants/envvar"
 	"github.com/starclusterteam/go-starbox/log"
 	"github.com/starclusterteam/go-starbox/metrics"
 )

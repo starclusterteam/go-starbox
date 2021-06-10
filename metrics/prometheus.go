@@ -70,7 +70,7 @@ func PrometheusPort(port int) PrometheusOption {
 	}
 }
 
-// PrometheusPath is a functional option for setting the Prometheus webserver metrics path. Defaults to "/internal/metrics".
+// PrometheusPath is a functional option for setting the Prometheus webserver metrics path. Defaults to "/metrics".
 func PrometheusPath(path string) PrometheusOption {
 	return func(s *prometheusServer) {
 		s.path = path
