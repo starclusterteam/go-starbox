@@ -31,7 +31,7 @@ func SetPrefix(name string) {
 
 // FetchGoEnv returns go struct
 func FetchGoEnv() GoEnv {
-	v := String("GO_ENV", "development")
+	v := String(envvar.Env, "development")
 
 	goEnv = GoEnv{
 		Name:        v,
