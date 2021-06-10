@@ -7,7 +7,7 @@ import (
 	"time"
 
 	"github.com/pkg/errors"
-	"github.com/starcluster/go-starbox/const/envvar"
+	"github.com/starclusterteam/go-starbox/const/envvar"
 )
 
 // GoEnv keeps go environment

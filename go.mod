@@ -1,4 +1,4 @@
-module github.com/starcluster/go-starbox
+module github.com/starclusterteam/go-starbox
 
 go 1.16
 

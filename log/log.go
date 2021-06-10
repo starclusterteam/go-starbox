@@ -3,7 +3,7 @@ package log
 import (
 	"github.com/sirupsen/logrus"
 
-	"github.com/starcluster/go-starbox/config"
+	"github.com/starclusterteam/go-starbox/config"
 )
 
 var baseLogger = logger{logrus.NewEntry(logrus.StandardLogger())}

@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
-	"github.com/starcluster/go-starbox/log"
+	"github.com/starclusterteam/go-starbox/log"
 )
 
 func TestWith(t *testing.T) {
