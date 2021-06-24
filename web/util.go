@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 	"strings"
+
+	"github.com/starclusterteam/go-starbox/apm"
 )
 
 // WriteJSON encodes given value to JSON and responds with <code>
@@ -16,7 +18,7 @@ func WriteJSON(w http.ResponseWriter, code int, value interface{}) {
 
 // HandleError logs the error then responds with generic 500 message
 func HandleError(w http.ResponseWriter, req *http.Request, err error) {
-	// TODO: hook error reporting
+	apm.GlobalReporter.Report(req.Context(), err)
 
 	WriteJSON(w, http.StatusInternalServerError, &ErrorResponse{
 		Messages: []string{"Something went wrong, error has been reported and we'll look into it as soon as possible"},

@@ -97,7 +97,7 @@ func extractTraceID(spanCtx opentracing.SpanContext) (string, error) {
 	case jaeger.SpanContext:
 		traceID = spanCtxImpl.TraceID().String()
 	default:
-		return "", errors.New("unexpected span context type")
+		traceID = "" // maybe opentracing.noopSpanContext ??
 	}
 
 	return traceID, nil

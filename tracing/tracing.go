@@ -11,7 +11,7 @@ import (
 )
 
 // Tracer is a global opentracing tracer.
-// If the ENABLE_TRACING environment variable is set to false, it will default to a noop tracer.
+// If the TRACING_ENABLED environment variable is set to false, it will default to a noop tracer.
 var Tracer opentracing.Tracer = &opentracing.NoopTracer{}
 
 func init() {
