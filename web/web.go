@@ -33,10 +33,11 @@ type Web struct {
 }
 
 type serverOptions struct {
-	addr     string
-	tracer   opentracing.Tracer
-	ping     bool
-	pingPath string
+	addr           string
+	tracer         opentracing.Tracer
+	ping           bool
+	pingPath       string
+	defaultHandler http.Handler
 }
 
 // New returns new web instance that handle the given routes. If no port
@@ -69,10 +70,16 @@ func New(routes Routes, opts ...Option) Server {
 		rs = append(rs, NewRoute("GET", options.pingPath, Ping))
 	}
 
+	router := NewRouter(rs)
+
+	if options.defaultHandler != nil {
+		router.NotFoundHandler = options.defaultHandler
+	}
+
 	return &Web{
 		server: &http.Server{
 			Addr:    options.addr,
-			Handler: NewRouter(rs),
+			Handler: router,
 		},
 	}
 }
@@ -174,6 +181,13 @@ func WithPort(port int) Option {
 func WithAddr(addr string) Option {
 	return func(o *serverOptions) {
 		o.addr = addr
+	}
+}
+
+// WithDefaultHandler sets the default handler for the router.
+func WithDefaultHandler(handler http.Handler) Option {
+	return func(o *serverOptions) {
+		o.defaultHandler = handler
 	}
 }
 
