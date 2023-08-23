@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package scrpc_test;
+
+option go_package = "github.com/starclusterteam/go-starbox/scrpc-test/generated";
+
+message Empty{}
+
+service TestService {
+    rpc Test (Empty) returns (Empty);
+}

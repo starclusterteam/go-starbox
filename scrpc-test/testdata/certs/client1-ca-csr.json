@@ -1,0 +1,16 @@
+{
+  "CN": "Client1 CA",
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "RO",
+      "L": "Bucharest",
+      "O": "stdlib",
+      "OU": "CA",
+      "ST": "B"
+    }
+  ]
+}

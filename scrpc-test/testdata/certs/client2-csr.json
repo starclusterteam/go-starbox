@@ -1,0 +1,17 @@
+{
+  "CN": "client2",
+  "hosts": [""],
+  "key": {
+    "algo": "rsa",
+    "size": 2048
+  },
+  "names": [
+    {
+      "C": "RO",
+      "L": "Bucharest",
+      "O": "stdlib",
+      "OU": "Client",
+      "ST": "B"
+    }
+  ]
+}
