@@ -10,6 +10,7 @@ import (
 
 	"github.com/gorilla/mux"
 	opentracing "github.com/opentracing/opentracing-go"
+	"github.com/rs/cors"
 	"github.com/starclusterteam/go-starbox/config"
 	"github.com/starclusterteam/go-starbox/constants"
 	"github.com/starclusterteam/go-starbox/constants/envvar"
@@ -38,6 +39,7 @@ type serverOptions struct {
 	ping           bool
 	pingPath       string
 	defaultHandler http.Handler
+	cors           *cors.Cors
 }
 
 // New returns new web instance that handle the given routes. If no port
@@ -76,10 +78,16 @@ func New(routes Routes, opts ...Option) Server {
 		router.NotFoundHandler = options.defaultHandler
 	}
 
+	var finalHandler http.Handler = router
+
+	if options.cors != nil {
+		finalHandler = options.cors.Handler(finalHandler)
+	}
+
 	return &Web{
 		server: &http.Server{
 			Addr:    options.addr,
-			Handler: router,
+			Handler: finalHandler,
 		},
 	}
 }
@@ -188,6 +196,12 @@ func WithAddr(addr string) Option {
 func WithDefaultHandler(handler http.Handler) Option {
 	return func(o *serverOptions) {
 		o.defaultHandler = handler
+	}
+}
+
+func WithCORS(c *cors.Cors) Option {
+	return func(o *serverOptions) {
+		o.cors = c
 	}
 }
 
