@@ -5,6 +5,7 @@ go 1.16
 require (
 	github.com/HdrHistogram/hdrhistogram-go v1.1.2 // indirect
 	github.com/felixge/httpsnoop v1.0.3
+	github.com/go-sql-driver/mysql v1.7.0
 	github.com/golang/mock v1.6.0
 	github.com/gorilla/mux v1.8.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.4.0
@@ -27,4 +28,6 @@ require (
 	golang.org/x/sync v0.2.0
 	google.golang.org/grpc v1.57.0
 	google.golang.org/protobuf v1.30.0
+	gorm.io/driver/mysql v1.5.1
+	gorm.io/gorm v1.25.4
 )
