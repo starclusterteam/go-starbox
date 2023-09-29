@@ -1,11 +1,15 @@
 package web
 
 import (
+	"encoding/json"
 	"fmt"
 	"net/http"
+
+	"github.com/starclusterteam/go-starbox/errors"
 )
 
 // ResponseError defines an interface for HTTP error handling, using the custom format:
+//
 //	{
 //		"messages": ["a message", "another message"],
 //		"errors": {
@@ -88,42 +92,175 @@ func NotFound(w http.ResponseWriter, errCode int, resources ...string) {
 // ErrorResponse defines the response structure for all 4xx and 5xx errors
 type ErrorResponse struct {
 	Messages []string            `json:"messages"`
+	Code     int                 `json:"code"`
 	Errors   map[string][]string `json:"errors"`
-	Code     int                 `json:"code,omitempty"`
+
+	HTTPStatus int `json:"-"`
+
+	isInternalError bool
+	internalError   error
 }
 
-// LoginRequired renders an "Unauthorized error" to user
-// Example:
-// {
-//   "messages": ["You must be logged in to access this page"],
-//   "errors": {
-//     "user": ["unauthorized"]
-//   }
-// }
-func LoginRequired(w http.ResponseWriter) {
-	response := &ErrorResponse{
-		Messages: []string{"You must be logged in to access this page"},
+func (e *ErrorResponse) Write(w http.ResponseWriter) {
+	WriteJSON(w, e.HTTPStatus, e)
+}
+
+var (
+	ErrMissingAuthorizationHeader = NewError("Missing authorization header", 101, http.StatusUnauthorized)
+	ErrInvalidAuthorizationHeader = NewError("Invalid authorization header", 102, http.StatusUnauthorized)
+	ErrInvalidAccessToken         = NewError("Invalid access token", 103, http.StatusUnauthorized)
+	ErrInvalidCredentials         = NewError("Invalid credentials", 104, http.StatusUnauthorized)
+	ErrUnauthorized               = NewError("Unauthorized", 105, http.StatusUnauthorized)
+
+	ErrInvalidRequestFormat = NewError("Invalid request format", 201, http.StatusBadRequest)
+)
+
+func NewError(message string, code, httpStatus int) *ErrorResponse {
+	return &ErrorResponse{
+		Messages:   []string{message},
+		Code:       code,
+		HTTPStatus: httpStatus,
+		Errors: map[string][]string{
+			"error": {message},
+		},
+	}
+}
+
+// NewValidationError returns a new error response with 400 status code
+func NewBadRequest(message string) *ErrorResponse {
+	return &ErrorResponse{
+		Messages:   []string{message},
+		Code:       400,
+		HTTPStatus: http.StatusBadRequest,
+		Errors: map[string][]string{
+			"bad_request": {message},
+		},
+	}
+}
+
+func NewBadRequestNotFound(field, resource string) *ErrorResponse {
+	return &ErrorResponse{
+		Messages:   []string{resource + " not found"},
+		Code:       400,
+		HTTPStatus: http.StatusBadRequest,
+		Errors: map[string][]string{
+			field: {resource + " not found"},
+		},
+	}
+}
+
+func NewLoginRequired() *ErrorResponse {
+	return &ErrorResponse{
+		Messages:   []string{"You must be logged in to access this page"},
+		Code:       105,
+		HTTPStatus: http.StatusUnauthorized,
 		Errors: map[string][]string{
 			"user": []string{"unauthorized"},
 		},
 	}
-	WriteJSON(w, http.StatusUnauthorized, response)
 }
 
-// ServiceUnavailable renders a 503 error to user
-// Example:
-// {
-//   "messages": ["There was an error, please try again later"],
-//   "errors": {
-//     "error": ["service unavailable"]
-//   }
-// }
-func ServiceUnavailable(w http.ResponseWriter) {
-	response := &ErrorResponse{
+// NewForbidden returns a new error response with 403 status code
+func NewForbidden(message string) *ErrorResponse {
+	return &ErrorResponse{
+		Messages:   []string{message},
+		Code:       403,
+		HTTPStatus: http.StatusForbidden,
+		Errors: map[string][]string{
+			"forbidden": {message},
+		},
+	}
+}
+
+// NewNotFound returns a new error response with 404 status code
+func NewNotFound(message string) *ErrorResponse {
+	return &ErrorResponse{
+		Messages:   []string{message},
+		Code:       404,
+		HTTPStatus: http.StatusNotFound,
+		Errors: map[string][]string{
+			"not_found": {message},
+		},
+	}
+}
+
+// NewConflict returns a new error response with 409 status code
+func NewConflict(message string) *ErrorResponse {
+	return &ErrorResponse{
+		Messages:   []string{message},
+		Code:       409,
+		HTTPStatus: http.StatusConflict,
+		Errors: map[string][]string{
+			"conflict": {message},
+		},
+	}
+}
+
+func NewInternalError(err error) *ErrorResponse {
+	return &ErrorResponse{
+		Messages:        []string{},
+		Code:            500,
+		HTTPStatus:      http.StatusInternalServerError,
+		Errors:          map[string][]string{},
+		isInternalError: true,
+		internalError:   err,
+	}
+}
+
+func NewServiceUnavailable() *ErrorResponse {
+	return &ErrorResponse{
 		Messages: []string{"There was an error, please try again later"},
 		Errors: map[string][]string{
 			"error": []string{"service unavailable"},
 		},
+		HTTPStatus: http.StatusServiceUnavailable,
+		Code:       503,
 	}
-	WriteJSON(w, http.StatusServiceUnavailable, response)
+}
+
+func NewValidationErrorsResponse(errs []ValidationError) *ErrorResponse {
+	messages := make([]string, len(errs))
+	errors := make(map[string][]string)
+
+	for i, err := range errs {
+		messages[i] = err.Message
+		errors[err.Field] = append(errors[err.Field], err.Message)
+	}
+
+	return &ErrorResponse{
+		Messages:   messages,
+		Code:       400,
+		HTTPStatus: http.StatusBadRequest,
+		Errors:     errors,
+	}
+}
+
+func HandleErrorResponse(w http.ResponseWriter, req *http.Request, err *ErrorResponse) {
+	if err.isInternalError {
+		HandleError(w, req, err.internalError)
+		return
+	}
+
+	WriteJSON(w, err.HTTPStatus, err)
+}
+
+func ParseErrorResponse(body []byte) (*ErrorResponse, error) {
+	e := &ErrorResponse{}
+	if err := json.Unmarshal(body, e); err != nil {
+		return nil, errors.Wrap(err, "failed to parse response")
+	}
+
+	if len(e.Messages) == 0 {
+		return nil, errors.New("missing required fields in error response: messages, errors")
+	}
+
+	if len(e.Errors) == 0 {
+		return nil, errors.New("missing required fields in error response: messages, errors")
+	}
+
+	if e.HTTPStatus != 0 {
+		return nil, errors.New("http status should not be provided in response: http_status")
+	}
+
+	return e, nil
 }

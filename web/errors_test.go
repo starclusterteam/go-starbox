@@ -15,7 +15,7 @@ var _ = Describe("errors", func() {
 	Describe("LoginRequired", func() {
 		It("Renders correctly", func() {
 			respw := httptest.NewRecorder()
-			web.LoginRequired(respw)
+			web.NewLoginRequired().Write(respw)
 			testutil.CheckUnauthorized(respw)
 		})
 	})
@@ -23,7 +23,7 @@ var _ = Describe("errors", func() {
 	Describe("ServiceUnavailable", func() {
 		It("Renders correctly", func() {
 			respw := httptest.NewRecorder()
-			web.ServiceUnavailable(respw)
+			web.NewServiceUnavailable().Write(respw)
 			testutil.CheckServiceUnavailable(respw)
 		})
 	})

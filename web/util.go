@@ -23,7 +23,7 @@ func HandleError(w http.ResponseWriter, req *http.Request, err error) {
 	WriteJSON(w, http.StatusInternalServerError, &ErrorResponse{
 		Messages: []string{"Something went wrong, error has been reported and we'll look into it as soon as possible"},
 		Errors: map[string][]string{
-			"error": []string{"internal server error"},
+			"error": {"internal server error"},
 		},
 	})
 }
