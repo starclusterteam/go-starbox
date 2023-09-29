@@ -105,6 +105,14 @@ func (e *ErrorResponse) Write(w http.ResponseWriter) {
 	WriteJSON(w, e.HTTPStatus, e)
 }
 
+func (e *ErrorResponse) IsInternalError() bool {
+	return e.isInternalError
+}
+
+func (e *ErrorResponse) InternalError() error {
+	return e.internalError
+}
+
 var (
 	ErrMissingAuthorizationHeader = NewError("Missing authorization header", 101, http.StatusUnauthorized)
 	ErrInvalidAuthorizationHeader = NewError("Invalid authorization header", 102, http.StatusUnauthorized)
