@@ -77,6 +77,24 @@ func BadRequest(w http.ResponseWriter, errCode int, field string, messages ...st
 	e.Write(w)
 }
 
+// UnsupportedMediaType writes to the ResponseWriter an unsupported media type error.
+func UnsupportedMediaType(w http.ResponseWriter, errCode int, field string, messages ...string) {
+	e := Error(http.StatusUnsupportedMediaType, errCode)
+
+	for _, m := range messages {
+		if field != "" {
+			e.AddMessage(fmt.Sprintf("%s %s", field, m))
+		} else {
+			e.AddMessage(m)
+		}
+	}
+
+	if field != "" {
+		e.With(field, messages...)
+	}
+	e.Write(w)
+}
+
 // NotFound writes to the ResponseWriter a not found error.
 func NotFound(w http.ResponseWriter, errCode int, resources ...string) {
 	e := Error(http.StatusNotAcceptable, errCode)
