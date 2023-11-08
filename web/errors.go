@@ -61,25 +61,24 @@ func Error(statusCode, errCode int) ResponseError {
 
 // BadRequest writes to the ResponseWriter a bad request error.
 func BadRequest(w http.ResponseWriter, errCode int, field string, messages ...string) {
-	e := Error(http.StatusBadRequest, errCode)
+	genericErrorResponse(w, http.StatusBadRequest, errCode, field, messages...)
+}
 
-	for _, m := range messages {
-		if field != "" {
-			e.AddMessage(fmt.Sprintf("%s %s", field, m))
-		} else {
-			e.AddMessage(m)
-		}
-	}
+func PreconditionFailed(w http.ResponseWriter, errCode int, field string, messages ...string) {
+	genericErrorResponse(w, http.StatusPreconditionFailed, errCode, field, messages...)
+}
 
-	if field != "" {
-		e.With(field, messages...)
-	}
-	e.Write(w)
+func PayloadTooLarge(w http.ResponseWriter, errCode int, field string, messages ...string) {
+	genericErrorResponse(w, http.StatusRequestEntityTooLarge, errCode, field, messages...)
 }
 
 // UnsupportedMediaType writes to the ResponseWriter an unsupported media type error.
 func UnsupportedMediaType(w http.ResponseWriter, errCode int, field string, messages ...string) {
-	e := Error(http.StatusUnsupportedMediaType, errCode)
+	genericErrorResponse(w, http.StatusUnsupportedMediaType, errCode, field, messages...)
+}
+
+func genericErrorResponse(w http.ResponseWriter, httpStatusCode int, errCode int, field string, messages ...string) {
+	e := Error(httpStatusCode, errCode)
 
 	for _, m := range messages {
 		if field != "" {
@@ -97,7 +96,7 @@ func UnsupportedMediaType(w http.ResponseWriter, errCode int, field string, mess
 
 // NotFound writes to the ResponseWriter a not found error.
 func NotFound(w http.ResponseWriter, errCode int, resources ...string) {
-	e := Error(http.StatusNotAcceptable, errCode)
+	e := Error(http.StatusNotFound, errCode)
 
 	for _, r := range resources {
 		e.AddMessage(fmt.Sprintf("%s not found", r))
