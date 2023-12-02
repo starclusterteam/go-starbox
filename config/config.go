@@ -81,6 +81,32 @@ func Int(name string, defaultValue int) int {
 	return i
 }
 
+func Int64(name string, defaultValue int64) int64 {
+	val := getOrDefault(name, strconv.FormatInt(defaultValue, 10))
+
+	i, err := strconv.ParseInt(val, 10, 64)
+	if err != nil {
+		panic(fmt.Sprintf("could not parse Int64 value: %v", err))
+	}
+
+	return i
+}
+
+func Uint(name string, defaultValue uint) uint {
+	return uint(Uint64(name, uint64(defaultValue)))
+}
+
+func Uint64(name string, defaultValue uint64) uint64 {
+	val := getOrDefault(name, strconv.FormatUint(defaultValue, 10))
+
+	i, err := strconv.ParseUint(val, 10, 64)
+	if err != nil {
+		panic(fmt.Sprintf("could not parse Uint64 value: %v", err))
+	}
+
+	return i
+}
+
 // Float returns config for this key as float64 or default value
 func Float(name string, defaultValue float64) float64 {
 	val := getEnv(name)
