@@ -8,7 +8,7 @@ import (
 	"net"
 	"strings"
 
-	grpc_middleware "github.com/grpc-ecosystem/go-grpc-middleware"
+	"github.com/grpc-ecosystem/go-grpc-middleware/v2/interceptors/recovery"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/grpc-ecosystem/grpc-opentracing/go/otgrpc"
 	opentracing "github.com/opentracing/opentracing-go"
@@ -63,11 +63,12 @@ func NewServer(cb func(*grpc.Server), opts ...ServerOption) (*Server, error) {
 	}
 
 	server := grpc.NewServer(
-		grpc_middleware.WithStreamServerChain(grpc_prometheus.StreamServerInterceptor),
-		grpc_middleware.WithUnaryServerChain(
+		grpc.ChainStreamInterceptor(grpc_prometheus.StreamServerInterceptor),
+		grpc.ChainUnaryInterceptor(
 			tracingInterceptor(options.tracer, options.traceHealthCheck),
 			LoggerInterceptor,
 			defaultServerMetrics.UnaryServerInterceptor(),
+			recovery.UnaryServerInterceptor(),
 		),
 		grpc.Creds(creds),
 	)
