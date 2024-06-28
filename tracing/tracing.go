@@ -15,7 +15,7 @@ import (
 var Tracer opentracing.Tracer = &opentracing.NoopTracer{}
 
 func init() {
-	if !config.Bool("TRACING_ENABLED", true) {
+	if !config.Bool("TRACING_ENABLED", false) {
 		return
 	}
 
