@@ -25,6 +25,7 @@ const defaultPort = 8888
 
 type Server interface {
 	Run() error
+	RunSSL(certFile, keyFile string) error
 	Stop(ctx context.Context) error
 }
 
