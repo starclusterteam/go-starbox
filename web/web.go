@@ -104,6 +104,16 @@ func (w *Web) Run() error {
 	return nil
 }
 
+func (w *Web) RunSSL(certFile, keyFile string) error {
+	log.Infof("Running web server on https://%s", w.server.Addr)
+
+	if err := w.server.ListenAndServeTLS(certFile, keyFile); err != nil && err != http.ErrServerClosed {
+		return err
+	}
+
+	return nil
+}
+
 // Stop gracefully shutdowns the http server.
 func (w *Web) Stop(ctx context.Context) error {
 	return w.server.Shutdown(ctx)
